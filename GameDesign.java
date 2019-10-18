@@ -6,6 +6,8 @@ import javax.swing.Timer;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
 
 public class GameDesign extends JPanel implements ActionListener, KeyListener {
 
@@ -22,8 +24,12 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 	BufferedImage carMain,carOther;
 	Timer timer;
 	ArrayList<Rectangle> oppositeCars;
+	File a = new File("src\\files\\fling.wav");
+	FileInputStream is = new FileInputStream(a);
+	AudioStream as = new AudioStream(is);
 
 	public GameDesign() throws IOException{ //constructor
+
 		carMain = ImageIO.read(getClass().getResource(".\\files\\car.png")); //Main car
 		carOther = ImageIO.read(getClass().getResource(".\\files\\revcar.png")); // Opposite car
 
@@ -38,9 +44,10 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 		addOppositeCars(true);
 		addOppositeCars(true);
 		timer.start();
+		AudioPlayer.player.start(as);
 	}
 
-	public void addOppositeCars(boolean exist){
+	public void addOppositeCars(boolean exist) {
 		int positionX = rand.nextInt()%2;
 		int x = 0;
 		int y = 0;
@@ -70,6 +77,7 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 		for(Rectangle r: oppositeCars){
 			if(r.intersects(car)){
 				System.out.println(oppositeCars.size());
+				AudioPlayer.player.stop(as);
 				new GameOver(count); //when opposite car intersects Main car
 				timer.stop();
 			}
