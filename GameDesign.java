@@ -76,9 +76,12 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 
 		for(Rectangle r: oppositeCars){
 			if(r.intersects(car)){
-				System.out.println(oppositeCars.size());
 				AudioPlayer.player.stop(as);
-				new GameOver(count); //when opposite car intersects Main car
+				try {
+					Watcher.closing(count); //when opposite car intersects Main car
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
 				timer.stop();
 			}
 		}
