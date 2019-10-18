@@ -5,6 +5,7 @@ import java.io.*;
 
 public class Menu {
 	public static void main(String[] args) {
+
 		JFrame frame = new JFrame("Car Survival");
 		JButton button1 = new JButton("Play Game");
 		button1.setBounds(130,150,230, 70);
