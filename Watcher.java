@@ -30,7 +30,7 @@ public class Watcher {
 
         button1.addActionListener(e -> {
             try {
-                new Main();
+                new Watcher();
             } catch (IOException ignored) {}
             frame1.dispose();
         });
