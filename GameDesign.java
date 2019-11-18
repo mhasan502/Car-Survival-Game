@@ -18,7 +18,7 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 	int width = 50;
 	int frameWidth = 600;
 	int frameHeight = 700;
-	int move = 20;
+	int move = 10;
 	Rectangle car;
 	Random rand;
 	BufferedImage carMain,carOther;
@@ -28,7 +28,7 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 	FileInputStream is = new FileInputStream(a);
 	AudioStream as = new AudioStream(is);
 
-	public GameDesign() throws IOException{ //constructor
+	public GameDesign() throws IOException{
 
 		carMain = ImageIO.read(getClass().getResource(".\\files\\car.png")); //Main car
 		carOther = ImageIO.read(getClass().getResource(".\\files\\revcar.png")); // Opposite car
@@ -56,32 +56,28 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 		else
 			x = frameWidth/2+10;
 
-		if(exist == true){
+		if(exist){
 			oppositeCars.add(new Rectangle(x,y-(oppositeCars.size()*350),width,height));
 		}
 		else{
 			oppositeCars.add(new Rectangle(x,(oppositeCars.get(oppositeCars.size()-1).y)-350,width,height));
 		}
 	}
-	public int count = 0;  // a counter varaible
+	private int count = 0;  // a counter varaible
 	public void actionPerformed(ActionEvent e) {
 		Rectangle rect;
 		count++;
-		for(int i=0;i<oppositeCars.size();i++){
-			rect = oppositeCars.get(i);
+		for (Rectangle oppositeCar : oppositeCars) {
+			rect = oppositeCar;
 			rect.y += speed;
-			if( (count)%1200 == 0)
+			if ((count) % 2000 == 0)
 				speed += 0.5;
 		}
 
 		for(Rectangle r: oppositeCars){
 			if(r.intersects(car)){
 				AudioPlayer.player.stop(as);
-				try {
-					Watcher.closing(count); //when opposite car intersects Main car
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
+				Watcher.closing(count); //when opposite car intersects Main car
 				timer.stop();
 			}
 		}
@@ -138,24 +134,22 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 				break;
 		}
 	}
-	public void keyReleased(KeyEvent e) {
-	}
-	public void keyTyped(KeyEvent e) {
-	}
+	public void keyReleased(KeyEvent e) { }
+	public void keyTyped(KeyEvent e) { }
 
-	public void moveup(){
+	private void moveup(){
 		if(car.y-move>=0)
 			car.y-=move;
 	}
-	public void movedown(){
+	private void movedown(){
 		if(car.y+car.height+move<=frameHeight+1)
 			car.y+=move;
 	}
-	public void moveleft(){
+	private void moveleft(){
 		if(car.x-move>=frameWidth/2-140)
 			car.x-=move;
 	}
-	public void moveright(){
+	private void moveright(){
 		if(car.x-move<=frameWidth/2+20)
 			car.x+=move;
 	}
