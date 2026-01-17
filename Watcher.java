@@ -1,23 +1,34 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 
 public class Watcher {
     static JFrame frame = new JFrame("Car Survival");
 
-    public Watcher() throws IOException {
-        GameDesign gameDesign = new GameDesign();
-        frame.add(gameDesign);
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600,700);
-        frame.setVisible(true);
-        frame.setResizable(true);
+    public Watcher() {
+        startGame();
     }
-    public static void closing(int count) {
 
-        frame.dispose();
-        JFrame frame1 = new JFrame("Game Over");
+    private static void startGame() {
+        try {
+            GameDesign gameDesign = new GameDesign();
+            frame.getContentPane().removeAll();
+            frame.setLayout(new BorderLayout());
+            frame.add(gameDesign, BorderLayout.CENTER);
+
+            frame.setTitle("Car Survival");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(600,700);
+            frame.setResizable(true);
+            frame.setVisible(true);
+            frame.revalidate();
+            frame.repaint();
+            SwingUtilities.invokeLater(gameDesign::requestFocusInWindow);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void closing(int count) {
         JButton scoreButton = new JButton("Score is: "+count);
         scoreButton.setBounds(0,100,500, 160);
         scoreButton.setBackground(new Color(255, 255, 255));
@@ -29,21 +40,22 @@ public class Watcher {
         setButtonProperty(button1,button2);
 
         button1.addActionListener(e -> {
-            try {
-                new Watcher();
-            } catch (IOException ignored) {}
-            frame1.dispose();
+            startGame();
         });
         button2.addActionListener(e -> System.exit(0));
 
-        frame1.add(button1);
-        frame1.add(button2);
-        frame1.add(scoreButton);
-        frame1.getContentPane().setBackground(new Color(71, 91, 122));
-        frame1.setSize(500, 700);
-        frame1.setLayout(null);
-        frame1.setVisible(true);
-        frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().removeAll();
+        frame.setTitle("Game Over");
+        frame.setLayout(null);
+        frame.add(button1);
+        frame.add(button2);
+        frame.add(scoreButton);
+        frame.getContentPane().setBackground(new Color(71, 91, 122));
+        frame.setSize(500, 700);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.revalidate();
+        frame.repaint();
+        frame.setVisible(true);
     }
     static void setButtonProperty(JButton button1,JButton button2){
         button1.setBounds(130,360,230, 70);

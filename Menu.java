@@ -4,7 +4,7 @@ import java.awt.*;
 public class Menu {
 	public static void main(String[] args) {
 
-		JFrame frame = new JFrame("Car Survival");
+		JFrame frame = Watcher.frame;
 		JButton button1 = new JButton("Play Game");
 		JButton button2 = new JButton("Exit");
 		setButtonProperty(button1,button2);
@@ -13,10 +13,11 @@ public class Menu {
 			try {
 				new Watcher();
 			} catch (Exception ignored) {}
-			frame.dispose();
 		});
 		button2.addActionListener(e -> System.exit(0));
 
+		frame.getContentPane().removeAll();
+		frame.setTitle("Car Survival");
 		frame.add(button1);
 		frame.add(button2);
 		frame.getContentPane().setBackground(new Color(67, 26, 85));
@@ -25,6 +26,8 @@ public class Menu {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(true);
+		frame.revalidate();
+		frame.repaint();
 	}
 	static void setButtonProperty(JButton button1,JButton button2){
 		button1.setBounds(130,150,230, 70);

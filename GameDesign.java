@@ -5,9 +5,9 @@ import javax.imageio.ImageIO;
 import javax.swing.Timer;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.util.*;
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
+import javax.sound.sampled.*;
 
 public class GameDesign extends JPanel implements ActionListener, KeyListener {
 
@@ -24,19 +24,23 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 	BufferedImage carMain,carOther;
 	Timer timer;
 	ArrayList<Rectangle> oppositeCars;
-	File a = new File("src\\files\\fling.wav");
-	FileInputStream is = new FileInputStream(a);
-	AudioStream as = new AudioStream(is);
+	Clip clip;
 
-	public GameDesign() throws IOException{
+	public GameDesign() throws Exception {
+		carMain = ImageIO.read(resolveResource("/files/car.png"));
+		carOther = ImageIO.read(resolveResource("/files/revcar.png"));
 
-		carMain = ImageIO.read(getClass().getResource(".\\files\\car.png")); //Main car
-		carOther = ImageIO.read(getClass().getResource(".\\files\\revcar.png")); // Opposite car
+		AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+				resolveResource("/files/fling.wav")
+		);
+		clip = AudioSystem.getClip();
+		clip.open(audioIn);
+		clip.start();
 
-		timer = new Timer(15,this);
+		timer = new Timer(15, this);
 		rand = new Random();
 		oppositeCars = new ArrayList<>();
-		car = new Rectangle(frameWidth/2-95,frameHeight-100,width,height);
+		car = new Rectangle(frameWidth / 2 - 95, frameHeight - 100, width, height);
 		addKeyListener(this);
 		setFocusable(true);
 		addOppositeCars(true);
@@ -44,7 +48,6 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 		addOppositeCars(true);
 		addOppositeCars(true);
 		timer.start();
-		AudioPlayer.player.start(as);
 	}
 
 	public void addOppositeCars(boolean exist) {
@@ -63,7 +66,7 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 			oppositeCars.add(new Rectangle(x,(oppositeCars.get(oppositeCars.size()-1).y)-350,width,height));
 		}
 	}
-	private int count = 0;  // a counter varaible
+	private int count = 0;  // counter variable
 	public void actionPerformed(ActionEvent e) {
 		Rectangle rect;
 		count++;
@@ -76,7 +79,9 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 
 		for(Rectangle r: oppositeCars){
 			if(r.intersects(car)){
-				AudioPlayer.player.stop(as);
+				if (clip != null && clip.isRunning()) {
+					clip.stop();
+				}
 				Watcher.closing(count); //when opposite car intersects Main car
 				timer.stop();
 			}
@@ -119,16 +124,16 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 		int key = e.getKeyCode();
 		switch (key){
 			case KeyEvent.VK_UP:
-				moveup();
+				move_up();
 				break;
 			case KeyEvent.VK_DOWN:
-				movedown();
+				move_down();
 				break;
 			case KeyEvent.VK_LEFT:
-				moveleft();
+				move_left();
 				break;
 			case KeyEvent.VK_RIGHT:
-				moveright();
+				move_right();
 				break;
 			default:
 				break;
@@ -137,20 +142,35 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 	public void keyReleased(KeyEvent e) { }
 	public void keyTyped(KeyEvent e) { }
 
-	private void moveup(){
+	private void move_up(){
 		if(car.y-move>=0)
 			car.y-=move;
 	}
-	private void movedown(){
+	private void move_down(){
 		if(car.y+car.height+move<=frameHeight+1)
 			car.y+=move;
 	}
-	private void moveleft(){
+	private void move_left(){
 		if(car.x-move>=frameWidth/2-140)
 			car.x-=move;
 	}
-	private void moveright(){
+		private void move_right(){
 		if(car.x-move<=frameWidth/2+20)
 			car.x+=move;
+	}
+
+	private URL resolveResource(String path) throws IOException {
+		URL resource = getClass().getResource(path);
+		if (resource != null) {
+			return resource;
+		}
+
+		String relativePath = path.startsWith("/") ? path.substring(1) : path;
+		File fallback = new File(relativePath);
+		if (fallback.exists()) {
+			return fallback.toURI().toURL();
+		}
+
+		throw new FileNotFoundException("Could not load resource: " + path);
 	}
 }
