@@ -2,127 +2,171 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.imageio.ImageIO;
-import javax.swing.Timer;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import javax.sound.sampled.*;
 
 public class GameDesign extends JPanel implements ActionListener, KeyListener {
 
-	Color Teal = new Color(0,128,128);
-	Color Grey = new Color(105,105,105);
-	double speed = 2.0;
-	int height = 120;
-	int width = 50;
-	int frameWidth = 600;
-	int frameHeight = 700;
-	int move = 10;
-	Rectangle car;
-	Random rand;
-	BufferedImage carMain,carOther;
-	Timer timer;
-	ArrayList<Rectangle> oppositeCars;
-	Clip clip;
+	private static final Color TEAL = new Color(0, 128, 128);
+	private static final Color GREY = new Color(105, 105, 105);
+	private static final Color ROAD_LINE_COLOR = Color.WHITE;
+	private static final Color MIDDLE_LINE_COLOR = Color.YELLOW;
+
+	private static final int FRAME_WIDTH = 600;
+	private static final int FRAME_HEIGHT = 700;
+	private static final int CAR_WIDTH = 50;
+	private static final int CAR_HEIGHT = 120;
+	private static final int MOVE_STEP = 10;
+	private static final int TIMER_DELAY_MS = 15;
+	private static final int OPPOSITE_CAR_GAP = 350;
+	private static final int INITIAL_OPPOSITE_CAR_COUNT = 4;
+	private static final int SPEED_INCREASE_INTERVAL = 2000;
+	private static final double SPEED_INCREASE_STEP = 0.5;
+	private static final int OFFSCREEN_PADDING = 100;
+
+	private static final int ROAD_CENTER_X = FRAME_WIDTH / 2;
+	private static final int ROAD_HALF_WIDTH = 120;
+	private static final int LEFT_ROAD_EDGE_X = ROAD_CENTER_X - ROAD_HALF_WIDTH;
+	private static final int RIGHT_ROAD_EDGE_X = ROAD_CENTER_X + ROAD_HALF_WIDTH;
+	private static final int LEFT_LANE_X = ROAD_CENTER_X - 90;
+	private static final int RIGHT_LANE_X = ROAD_CENTER_X + 10;
+	private static final int PLAYER_START_X = ROAD_CENTER_X - 95;
+	private static final int PLAYER_START_Y = FRAME_HEIGHT - 100;
+	private static final int PLAYER_LEFT_BOUND = ROAD_CENTER_X - 140;
+	private static final int PLAYER_RIGHT_BOUND = ROAD_CENTER_X + 20;
+	private static final int PLAYER_IMAGE_Y_OFFSET = 60;
+	private static final int OPPOSITE_IMAGE_Y_OFFSET = 55;
+
+	private static final String PLAYER_CAR_PATH = "/src/sprites/car.png";
+	private static final String OPPOSITE_CAR_PATH = "/src/sprites/revcar.png";
+	private static final String MUSIC_PATH = "/src/music/fling.wav";
+
+	private double speed = 2.0;
+	private int count = 0;
+
+	private final Rectangle car;
+	private final Random random;
+	private final BufferedImage carMain;
+	private final BufferedImage carOther;
+	private final Timer timer;
+	private final List<Rectangle> oppositeCars;
+	private final Clip clip;
 
 	public GameDesign() throws Exception {
-		carMain = ImageIO.read(resolveResource("/files/car.png"));
-		carOther = ImageIO.read(resolveResource("/files/revcar.png"));
+		carMain = ImageIO.read(resolveResource(PLAYER_CAR_PATH));
+		carOther = ImageIO.read(resolveResource(OPPOSITE_CAR_PATH));
+		clip = initAndStartMusic();
 
-		AudioInputStream audioIn = AudioSystem.getAudioInputStream(
-				resolveResource("/files/fling.wav")
-		);
-		clip = AudioSystem.getClip();
-		clip.open(audioIn);
-		clip.start();
-
-		timer = new Timer(15, this);
-		rand = new Random();
+		timer = new Timer(TIMER_DELAY_MS, this);
+		random = new Random();
 		oppositeCars = new ArrayList<>();
-		car = new Rectangle(frameWidth / 2 - 95, frameHeight - 100, width, height);
+		car = new Rectangle(PLAYER_START_X, PLAYER_START_Y, CAR_WIDTH, CAR_HEIGHT);
+
 		addKeyListener(this);
 		setFocusable(true);
-		addOppositeCars(true);
-		addOppositeCars(true);
-		addOppositeCars(true);
-		addOppositeCars(true);
+
+		for (int i = 0; i < INITIAL_OPPOSITE_CAR_COUNT; i++) {
+			addOppositeCars(true);
+		}
+
 		timer.start();
 	}
 
-	public void addOppositeCars(boolean exist) {
-		int positionX = rand.nextInt()%2;
-		int x = 0;
-		int y = 0;
-		if(positionX==0)
-			x = frameWidth/2-90;
-		else
-			x = frameWidth/2+10;
-
-		if(exist){
-			oppositeCars.add(new Rectangle(x,y-(oppositeCars.size()*350),width,height));
-		}
-		else{
-			oppositeCars.add(new Rectangle(x,(oppositeCars.get(oppositeCars.size()-1).y)-350,width,height));
-		}
+	private Clip initAndStartMusic() throws Exception {
+		AudioInputStream audioIn = AudioSystem.getAudioInputStream(resolveResource(MUSIC_PATH));
+		Clip gameClip = AudioSystem.getClip();
+		gameClip.open(audioIn);
+		gameClip.start();
+		return gameClip;
 	}
-	private int count = 0;  // counter variable
-	public void actionPerformed(ActionEvent e) {
-		Rectangle rect;
-		count++;
-		for (Rectangle oppositeCar : oppositeCars) {
-			rect = oppositeCar;
-			rect.y += speed;
-			if ((count) % 2000 == 0)
-				speed += 0.5;
+
+	public void addOppositeCars(boolean exist) {
+		addOppositeCar(exist);
+	}
+
+	private void addOppositeCar(boolean exist) {
+		int x = random.nextBoolean() ? LEFT_LANE_X : RIGHT_LANE_X;
+		int y;
+
+		if (exist) {
+			y = -(oppositeCars.size() * OPPOSITE_CAR_GAP);
+		} else {
+			y = oppositeCars.get(oppositeCars.size() - 1).y - OPPOSITE_CAR_GAP;
 		}
 
-		for(Rectangle r: oppositeCars){
-			if(r.intersects(car)){
+		oppositeCars.add(new Rectangle(x, y, CAR_WIDTH, CAR_HEIGHT));
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		count++;
+
+		for (Rectangle oppositeCar : oppositeCars) {
+			oppositeCar.y += (int) speed;
+		}
+		if (count % SPEED_INCREASE_INTERVAL == 0) {
+			speed += SPEED_INCREASE_STEP * oppositeCars.size();
+		}
+
+		for (Rectangle r : oppositeCars) {
+			if (r.intersects(car)) {
 				if (clip != null && clip.isRunning()) {
 					clip.stop();
 				}
-				Watcher.closing(count); //when opposite car intersects Main car
+				Watcher.closing(count);
 				timer.stop();
 			}
 		}
-		repaint(); //it will repaint in every frame cause something will be changed in every frane
-		for (int i=0;i<oppositeCars.size();i++){
-			rect = oppositeCars.get(i);
-			if(rect.y+rect.height-100>frameHeight){ //remove car if it goes outside of frame
+
+		repaint();
+
+		for (int i = 0; i < oppositeCars.size(); i++) {
+			Rectangle rect = oppositeCars.get(i);
+			if (rect.y + rect.height - OFFSCREEN_PADDING > FRAME_HEIGHT) {
 				oppositeCars.remove(rect);
-				addOppositeCars(false);
+				addOppositeCar(false);
 			}
 		}
 	}
-	public void paintComponent(Graphics g){ //design
-		g.setColor(Teal);
-		g.fillRect(0,0,frameWidth,frameHeight);
-		g.setColor(Grey);
-		g.fillRect(frameWidth/2-120,0,240,frameHeight);
-		//line on left side
-		g.setColor(Color.white);
-		g.drawLine(frameWidth/2-120,0,frameWidth/2-120,frameHeight);
-		g.drawLine(frameWidth/2-119,0,frameWidth/2-119,frameHeight);
-		//line on right side
-		g.drawLine(frameWidth/2+120,0,frameWidth/2+120,frameHeight);
-		g.drawLine(frameWidth/2+119,0,frameWidth/2+119,frameHeight);
-		//line on middle
-		g.setColor(Color.yellow);
-		g.drawLine(frameWidth/2,0,frameWidth/2,frameHeight);
-		g.drawLine(frameWidth/2-1,0,frameWidth/2-1,frameHeight);
-		g.drawLine(frameWidth/2-2,0,frameWidth/2-2,frameHeight);
-		g.drawLine(frameWidth/2+1,0,frameWidth/2+1,frameHeight);
-		g.drawLine(frameWidth/2+2,0,frameWidth/2+2,frameHeight);
-		//line ends
-		g.drawImage(carMain,car.x,car.y-60,null); //Main car image
-		for(Rectangle rect:oppositeCars){
-			g.drawImage(carOther,rect.x,rect.y-55,null); //Opposite car image
+
+	@Override
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+
+		g.setColor(TEAL);
+		g.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+
+		g.setColor(GREY);
+		g.fillRect(LEFT_ROAD_EDGE_X, 0, ROAD_HALF_WIDTH * 2, FRAME_HEIGHT);
+
+		g.setColor(ROAD_LINE_COLOR);
+		g.drawLine(LEFT_ROAD_EDGE_X, 0, LEFT_ROAD_EDGE_X, FRAME_HEIGHT);
+		g.drawLine(LEFT_ROAD_EDGE_X + 1, 0, LEFT_ROAD_EDGE_X + 1, FRAME_HEIGHT);
+		g.drawLine(RIGHT_ROAD_EDGE_X, 0, RIGHT_ROAD_EDGE_X, FRAME_HEIGHT);
+		g.drawLine(RIGHT_ROAD_EDGE_X - 1, 0, RIGHT_ROAD_EDGE_X - 1, FRAME_HEIGHT);
+
+		g.setColor(MIDDLE_LINE_COLOR);
+		g.drawLine(ROAD_CENTER_X, 0, ROAD_CENTER_X, FRAME_HEIGHT);
+		g.drawLine(ROAD_CENTER_X - 1, 0, ROAD_CENTER_X - 1, FRAME_HEIGHT);
+		g.drawLine(ROAD_CENTER_X - 2, 0, ROAD_CENTER_X - 2, FRAME_HEIGHT);
+		g.drawLine(ROAD_CENTER_X + 1, 0, ROAD_CENTER_X + 1, FRAME_HEIGHT);
+		g.drawLine(ROAD_CENTER_X + 2, 0, ROAD_CENTER_X + 2, FRAME_HEIGHT);
+
+		g.drawImage(carMain, car.x, car.y - PLAYER_IMAGE_Y_OFFSET, null);
+		for (Rectangle rect : oppositeCars) {
+			g.drawImage(carOther, rect.x, rect.y - OPPOSITE_IMAGE_Y_OFFSET, null);
 		}
 	}
-	public void keyPressed(KeyEvent e) { //event on key press
+
+	@Override
+	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
-		switch (key){
+		switch (key) {
 			case KeyEvent.VK_UP:
 				move_up();
 				break;
@@ -139,24 +183,35 @@ public class GameDesign extends JPanel implements ActionListener, KeyListener {
 				break;
 		}
 	}
+
+	@Override
 	public void keyReleased(KeyEvent e) { }
+
+	@Override
 	public void keyTyped(KeyEvent e) { }
 
 	private void move_up(){
-		if(car.y-move>=0)
-			car.y-=move;
+		if (car.y - MOVE_STEP >= 0) {
+			car.y -= MOVE_STEP;
+		}
 	}
+
 	private void move_down(){
-		if(car.y+car.height+move<=frameHeight+1)
-			car.y+=move;
+		if (car.y + car.height + MOVE_STEP <= FRAME_HEIGHT + 1) {
+			car.y += MOVE_STEP;
+		}
 	}
+
 	private void move_left(){
-		if(car.x-move>=frameWidth/2-140)
-			car.x-=move;
+		if (car.x - MOVE_STEP >= PLAYER_LEFT_BOUND) {
+			car.x -= MOVE_STEP;
+		}
 	}
-		private void move_right(){
-		if(car.x-move<=frameWidth/2+20)
-			car.x+=move;
+
+	private void move_right(){
+		if (car.x - MOVE_STEP <= PLAYER_RIGHT_BOUND) {
+			car.x += MOVE_STEP;
+		}
 	}
 
 	private URL resolveResource(String path) throws IOException {

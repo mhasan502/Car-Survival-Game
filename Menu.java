@@ -2,26 +2,34 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Menu {
+	private static final String TITLE = "Car Survival";
+	private static final Dimension MENU_SIZE = new Dimension(500, 700);
+	private static final Color MENU_BACKGROUND = new Color(67, 26, 85);
+	private static final Color BUTTON_BACKGROUND = new Color(52, 168, 64);
+	private static final Color BUTTON_FOREGROUND = Color.WHITE;
+	private static final Font BUTTON_FONT = new Font("Monospaced", Font.BOLD, 21);
+
 	public static void main(String[] args) {
+		SwingUtilities.invokeLater(() -> showMenu(Watcher.frame));
+	}
 
-		JFrame frame = Watcher.frame;
-		JButton button1 = new JButton("Play Game");
-		JButton button2 = new JButton("Exit");
-		setButtonProperty(button1,button2);
+	private static void showMenu(JFrame frame) {
+		JButton playButton = createMenuButton("Play Game", 150);
+		JButton exitButton = createMenuButton("Exit", 260);
 
-		button1.addActionListener(e -> {
+		playButton.addActionListener(e -> {
 			try {
 				new Watcher();
 			} catch (Exception ignored) {}
 		});
-		button2.addActionListener(e -> System.exit(0));
+		exitButton.addActionListener(e -> System.exit(0));
 
 		frame.getContentPane().removeAll();
-		frame.setTitle("Car Survival");
-		frame.add(button1);
-		frame.add(button2);
-		frame.getContentPane().setBackground(new Color(67, 26, 85));
-		frame.setSize(500,700);
+		frame.setTitle(TITLE);
+		frame.add(playButton);
+		frame.add(exitButton);
+		frame.getContentPane().setBackground(MENU_BACKGROUND);
+		frame.setSize(MENU_SIZE);
 		frame.setLayout(null);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -29,15 +37,13 @@ public class Menu {
 		frame.revalidate();
 		frame.repaint();
 	}
-	static void setButtonProperty(JButton button1,JButton button2){
-		button1.setBounds(130,150,230, 70);
-		button1.setBackground(new Color(52, 168, 64));
-		button1.setFont(new Font("Monospaced", Font.BOLD, 21));
-		button1.setForeground(Color.white);
 
-		button2.setBounds(130,260,230, 70);
-		button2.setBackground(new Color(52, 168, 64));
-		button2.setFont(new Font("Monospaced", Font.BOLD, 21));
-		button2.setForeground(Color.white);
+	private static JButton createMenuButton(String text, int y) {
+		JButton button = new JButton(text);
+		button.setBounds(130, y, 230, 70);
+		button.setBackground(BUTTON_BACKGROUND);
+		button.setFont(BUTTON_FONT);
+		button.setForeground(BUTTON_FOREGROUND);
+		return button;
 	}
 }
