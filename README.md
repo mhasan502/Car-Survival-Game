@@ -12,7 +12,7 @@ Car Survival Game is a small Java Swing desktop game where you dodge incoming ca
 
 ## Tech Stack
 
-- Java 17
+- Java 21
 - Swing (UI)
 - Gradle (`application` plugin)
 
@@ -33,7 +33,7 @@ Car Survival Game is a small Java Swing desktop game where you dodge incoming ca
 
 Prerequisites:
 
-- Java 17+
+- Java 21+
 - Gradle installed
 
 Run:
@@ -54,7 +54,7 @@ Linux/macOS:
 
 ```bash
 mkdir -p out
-javac --release 17 -d out $(find src/main/java -name "*.java")
+javac --release 21 -d out $(find src/main/java -name "*.java")
 java -cp out:src/main/resources com.carsurvival.Main
 ```
 
@@ -62,6 +62,16 @@ Windows (PowerShell):
 
 ```powershell
 New-Item -ItemType Directory -Force out | Out-Null
-javac --release 17 -d out (Get-ChildItem -Recurse src/main/java -Filter *.java | ForEach-Object { $_.FullName })
+javac --release 21 -d out (Get-ChildItem -Recurse src/main/java -Filter *.java | ForEach-Object { $_.FullName })
 java -cp "out;src/main/resources" com.carsurvival.Main
 ```
+
+## IntelliJ IDEA Setup
+
+1. Open the project root as a Gradle project.
+2. Set Project SDK to JDK 21 (`File > Project Structure > Project`).
+3. Ensure language level is 21.
+4. Create an Application run configuration:
+   - Main class: `com.carsurvival.Main`
+   - Use classpath of module: project main module
+   - Working directory: project root
