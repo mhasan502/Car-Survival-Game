@@ -2,13 +2,18 @@
 
 Car Survival Game is a small Java Swing desktop game where you dodge incoming cars and survive as long as possible.
 
+<p align="center">
+  <img src="static/gameplay-1.webp" alt="gameplay screenshot of car survival game - 1" width="40%" />
+  <img src="static/gameplay-2.webp" alt="gameplay screenshot of car survival game - 2" width="40%" />
+</p>
+
 ## Features
 
 - Menu screen with Play and Exit actions
 - Two-lane survival gameplay
 - Score that increases over time
 - Game Over screen with Play Again
-- Sprite and background audio support from `src/main/resources`
+- Sprite and background audio support from `src/resources`
 
 ## Tech Stack
 
@@ -25,27 +30,34 @@ Car Survival Game is a small Java Swing desktop game where you dodge incoming ca
 
 ## Project Structure
 
-- `src/main/java/com/carsurvival`: game source code
-- `src/main/resources/sprites`: car sprites
-- `src/main/resources/music`: audio file
+- `src/Main.java`: launcher entry point
+- `src/com/carsurvival`: game source code
+- `src/resources/sprites`: car sprites
+- `src/resources/music`: audio file
 
-## Run (Gradle)
+## Run (Current Layout)
 
 Prerequisites:
 
 - Java 21+
-- Gradle installed
+- Use the included Gradle Wrapper (`gradlew`)
 
-Run:
+Build classes/resources with Gradle Wrapper:
 
 ```bash
-gradle run
+./gradlew clean classes
+```
+
+Run the game:
+
+```bash
+java -cp build/classes/java/main:build/resources/main Main
 ```
 
 ## Build (Gradle)
 
 ```bash
-gradle clean build
+./gradlew clean build
 ```
 
 ## Compile/Run Without Gradle
@@ -54,16 +66,16 @@ Linux/macOS:
 
 ```bash
 mkdir -p out
-javac --release 21 -d out $(find src/main/java -name "*.java")
-java -cp out:src/main/resources com.carsurvival.Main
+javac --release 21 -d out $(find src -name "*.java")
+java -cp out:src/resources Main
 ```
 
 Windows (PowerShell):
 
 ```powershell
 New-Item -ItemType Directory -Force out | Out-Null
-javac --release 21 -d out (Get-ChildItem -Recurse src/main/java -Filter *.java | ForEach-Object { $_.FullName })
-java -cp "out;src/main/resources" com.carsurvival.Main
+javac --release 21 -d out (Get-ChildItem -Recurse src -Filter *.java | ForEach-Object { $_.FullName })
+java -cp "out;src/resources" Main
 ```
 
 ## IntelliJ IDEA Setup
@@ -72,6 +84,6 @@ java -cp "out;src/main/resources" com.carsurvival.Main
 2. Set Project SDK to JDK 21 (`File > Project Structure > Project`).
 3. Ensure language level is 21.
 4. Create an Application run configuration:
-   - Main class: `com.carsurvival.Main`
+   - Main class: `Main`
    - Use classpath of module: project main module
    - Working directory: project root

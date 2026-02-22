@@ -5,6 +5,17 @@ plugins {
 group = 'com.carsurvival'
 version = '1.0.0'
 
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src/resources']
+        }
+    }
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)

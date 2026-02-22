@@ -1,10 +1,10 @@
-package carsurvival;
+package com.carsurvival;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Menu {
-	public static void main() {
+	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
 			JFrame frame = Watcher.frame;
 			frame.getContentPane().removeAll();

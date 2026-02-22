@@ -1,4 +1,4 @@
-package carsurvival;
+package com.carsurvival;
 
 import javax.swing.*;
 import java.awt.*;

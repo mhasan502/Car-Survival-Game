@@ -1,4 +1,4 @@
-package carsurvival;
+package com.carsurvival;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
