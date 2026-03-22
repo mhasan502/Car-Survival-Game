@@ -17,7 +17,7 @@ public class Menu {
 
 			JButton play = button("Play Game", 150);
 			JButton exit = button("Exit", 260);
-			play.addActionListener(e -> new Watcher());
+			play.addActionListener(e -> Watcher.startGame());
 			exit.addActionListener(e -> System.exit(0));
 
 			frame.add(play);

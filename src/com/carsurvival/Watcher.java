@@ -6,11 +6,9 @@ import java.awt.*;
 public class Watcher {
 	static final JFrame frame = new JFrame("Car Survival");
 
-	public Watcher() {
-		startGame();
-	}
+	private Watcher() {}
 
-	private static void startGame() {
+	public static void startGame() {
 		GameDesign game = new GameDesign();
 		frame.getContentPane().removeAll();
 		frame.setTitle("Car Survival");
